@@ -63,8 +63,10 @@ options:
       - read_repository
       - write_repository
       - create_runner
+      - manage_runner
       - ai_features
       - k8s_proxy
+      - self_rotate
   access_level:
     description:
       - Access level of the access token.
@@ -241,8 +243,10 @@ def main():
                              'read_repository',
                              'write_repository',
                              'create_runner',
+                             'manage_runner',
                              'ai_features',
-                             'k8s_proxy']),
+                             'k8s_proxy',
+                             'self_rotate']),
         access_level=dict(type='str', default='maintainer', choices=['guest', 'reporter', 'developer', 'maintainer', 'owner']),
         expires_at=dict(type='str', required=True),
         recreate=dict(type='str', default='never', choices=['never', 'always', 'state_change'])
