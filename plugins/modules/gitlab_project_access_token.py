@@ -30,7 +30,7 @@ notes:
   - Access tokens can not be changed. If a parameter needs to be changed, an acceess token has to be recreated. Whether tokens
     are recreated or not is controlled by the O(recreate) option, which defaults to V(never).
   - Token string is contained in the result only when access token is created or recreated. It can not be fetched afterwards.
-  - Token matching is done by comparing O(name) option.
+  - Token matching is done by comparing the fields specified in the O(unique_identifiers) option (defaults to V(['name'])).
 attributes:
   check_mode:
     support: full
@@ -100,6 +100,14 @@ options:
     default: present
     type: str
     choices: ["present", "absent"]
+  unique_identifiers:
+    description:
+      - List of fields to use to uniquely identify tokens.
+    default: ["name"]
+    type: list
+    choices:
+      - name
+      - description
 """
 
 EXAMPLES = r"""
@@ -197,10 +205,10 @@ class GitLabProjectAccessToken(object):
     @param project Project object
     @param name of the access token
     '''
-    def find_access_token(self, project, name):
+    def find_access_token(self, project, unique_identifiers):
         access_tokens = [x for x in project.access_tokens.list(all=True) if not getattr(x, 'revoked', False)]
         for access_token in access_tokens:
-            if access_token.name == name:
+            if all(getattr(access_token, k) == v for k, v in unique_identifiers.items()):
                 self.access_token_object = access_token
                 return False
         return False
@@ -255,7 +263,8 @@ def main():
                              'self_rotate']),
         access_level=dict(type='str', default='maintainer', choices=['guest', 'reporter', 'developer', 'maintainer', 'owner']),
         expires_at=dict(type='str', required=True),
-        recreate=dict(type='str', default='never', choices=['never', 'always', 'state_change'])
+        recreate=dict(type='str', default='never', choices=['never', 'always', 'state_change']),
+        unique_identifiers=dict(type='list', elements='str', default=['name'], choices=['name', 'description'])
     ))
 
     module = AnsibleModule(
@@ -284,6 +293,7 @@ def main():
     access_level_str = module.params['access_level']
     expires_at = module.params['expires_at']
     recreate = module.params['recreate']
+    unique_identifiers = module.params['unique_identifiers']
 
     access_level = ACCESS_LEVELS[access_level_str]
 
@@ -301,7 +311,8 @@ def main():
         module.fail_json(msg="Failed to create access token: project %s does not exists" % project_identifier)
 
     gitlab_access_token_exists = False
-    gitlab_access_token.find_access_token(project, name)
+    unique_identifiers_dict = {k: module.params[k] for k in unique_identifiers}
+    gitlab_access_token.find_access_token(project, unique_identifiers_dict)
     if gitlab_access_token.access_token_object is not None:
         gitlab_access_token_exists = True
 

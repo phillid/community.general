@@ -68,7 +68,7 @@ class TestGitlabProjectAccessToken(GitlabModuleTestCase):
         project = self.gitlab_instance.projects.get(1)
         self.assertIsNotNone(project)
 
-        rvalue = self.moduleUtil.find_access_token(project, "test-token")
+        rvalue = self.moduleUtil.find_access_token(project, {"name": "test-token"})
         self.assertEqual(rvalue, False)
         self.assertIsNotNone(self.moduleUtil.access_token_object)
         self.assertEqual(self.moduleUtil.access_token_object.id, 691)
@@ -80,7 +80,7 @@ class TestGitlabProjectAccessToken(GitlabModuleTestCase):
         project = self.gitlab_instance.projects.get(1)
         self.assertIsNotNone(project)
 
-        rvalue = self.moduleUtil.find_access_token(project, "test-token-no-revoked")
+        rvalue = self.moduleUtil.find_access_token(project, {"name": "test-token-no-revoked"})
         self.assertEqual(rvalue, False)
         self.assertIsNotNone(self.moduleUtil.access_token_object)
         self.assertEqual(self.moduleUtil.access_token_object.id, 695)
@@ -92,7 +92,7 @@ class TestGitlabProjectAccessToken(GitlabModuleTestCase):
         project = self.gitlab_instance.projects.get(1)
         self.assertIsNotNone(project)
 
-        rvalue = self.moduleUtil.find_access_token(project, "test-token-three")
+        rvalue = self.moduleUtil.find_access_token(project, {"name": "test-token-three"})
         self.assertEqual(rvalue, False)
         self.assertIsNone(self.moduleUtil.access_token_object)
 
@@ -102,7 +102,7 @@ class TestGitlabProjectAccessToken(GitlabModuleTestCase):
         project = self.gitlab_instance.projects.get(1)
         self.assertIsNotNone(project)
 
-        rvalue = self.moduleUtil.find_access_token(project, "nonexisting")
+        rvalue = self.moduleUtil.find_access_token(project, {"name": "nonexisting"})
         self.assertEqual(rvalue, False)
         self.assertIsNone(self.moduleUtil.access_token_object)
 
@@ -123,7 +123,7 @@ class TestGitlabProjectAccessToken(GitlabModuleTestCase):
         project = self.gitlab_instance.projects.get(1)
         self.assertIsNotNone(project)
 
-        rvalue = self.moduleUtil.find_access_token(project, "test-token")
+        rvalue = self.moduleUtil.find_access_token(project, {"name": "test-token"})
         self.assertEqual(rvalue, False)
         self.assertIsNotNone(self.moduleUtil.access_token_object)
 
