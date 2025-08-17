@@ -48,6 +48,11 @@ options:
       - Access token's name.
     required: true
     type: str
+  description:
+    description:
+      - Access token's description.
+    type: str
+    version_added: "11.3.0"
   scopes:
     description:
       - Scope of the access token.
@@ -236,6 +241,7 @@ def main():
         state=dict(type='str', default="present", choices=["absent", "present"]),
         group=dict(type='str', required=True),
         name=dict(type='str', required=True),
+        description=dict(type='str'),
         scopes=dict(type='list',
                     required=True,
                     aliases=['scope'],
@@ -279,6 +285,7 @@ def main():
     state = module.params['state']
     group_identifier = module.params['group']
     name = module.params['name']
+    description = module.params['description']
     scopes = module.params['scopes']
     access_level_str = module.params['access_level']
     expires_at = module.params['expires_at']
@@ -316,7 +323,7 @@ def main():
             if gitlab_access_token.access_tokens_equal():
                 if recreate == 'always':
                     gitlab_access_token.revoke_access_token()
-                    gitlab_access_token.create_access_token(group, {'name': name, 'scopes': scopes, 'access_level': access_level, 'expires_at': expires_at})
+                    gitlab_access_token.create_access_token(group, {'name': name, 'description': description, 'scopes': scopes, 'access_level': access_level, 'expires_at': expires_at})
                     module.exit_json(changed=True, msg="Successfully recreated access token", access_token=gitlab_access_token.access_token_object._attrs)
                 else:
                     module.exit_json(changed=False, msg="Access token already exists", access_token=gitlab_access_token.access_token_object._attrs)
@@ -325,10 +332,10 @@ def main():
                     module.fail_json(msg="Access token already exists and its state is different. It can not be updated without recreating.")
                 else:
                     gitlab_access_token.revoke_access_token()
-                    gitlab_access_token.create_access_token(group, {'name': name, 'scopes': scopes, 'access_level': access_level, 'expires_at': expires_at})
+                    gitlab_access_token.create_access_token(group, {'name': name, 'description': description, 'scopes': scopes, 'access_level': access_level, 'expires_at': expires_at})
                     module.exit_json(changed=True, msg="Successfully recreated access token", access_token=gitlab_access_token.access_token_object._attrs)
         else:
-            gitlab_access_token.create_access_token(group, {'name': name, 'scopes': scopes, 'access_level': access_level, 'expires_at': expires_at})
+            gitlab_access_token.create_access_token(group, {'name': name, 'description': description, 'scopes': scopes, 'access_level': access_level, 'expires_at': expires_at})
             if module.check_mode:
                 module.exit_json(changed=True, msg="Successfully created access token", access_token={})
             else:
